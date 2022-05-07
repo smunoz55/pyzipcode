@@ -6,6 +6,7 @@ import time
 from collections.abc import Mapping
 
 from pyzipcode.settings import db_location
+from pyzipcode.import_zipcodes import run_import
 
 
 class ConnectionManager:
@@ -114,10 +115,13 @@ class ZipCodeDatabase(Mapping):
     Interface to the zipcode lookup functionality
     """
 
-    def __init__(self, conn_manager=None):
+    def __init__(self, conn_manager=None, force_import=False):
         if conn_manager is None:
             conn_manager = ConnectionManager()
         self.conn_manager = conn_manager
+
+        if force_import:
+            run_import()
 
     def get_zipcodes_around_radius(self, zipcode, radius):
         """
@@ -163,7 +167,6 @@ class ZipCodeDatabase(Mapping):
             state = state.upper()
 
         return format_result(self.conn_manager.query(ZIP_FIND_QUERY, (city, state)))
-
 
     def get(self, zipcode, default=None):
         """
